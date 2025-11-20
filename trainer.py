@@ -65,7 +65,7 @@ class Trainer():
     def create_submission(self,
                           test_loader: DataLoader,
                           class_names,
-                          submission_path: str = "data/submission.csv"):
+                          submission_path: str = "submission.csv"):
         self.model.eval()
         rows = []
         with torch.inference_mode():

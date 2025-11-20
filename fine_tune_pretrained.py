@@ -56,7 +56,7 @@ train_idx, val_idx = train_test_split(
 train_ds = Subset(dataset_train, train_idx)
 val_ds   = Subset(dataset_val,   val_idx)
 
-batch_size = 32
+batch_size = 64
 train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=1, pin_memory=torch.cuda.is_available())
 val_loader   = DataLoader(val_ds,   batch_size=batch_size, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
 
@@ -95,7 +95,7 @@ logger.info(f"Creating model {model._get_name()}")
 from trainer import Trainer
 import torch.optim as optim
 
-optimizer = optim.AdamW(model.parameters(), lr=3e-4, weight_decay=5e-4)
+optimizer = optim.AdamW(model.parameters(), lr=2e-4, weight_decay=5e-4)
 
 trainer = Trainer(model=model, optimizer=optimizer)
 
@@ -104,7 +104,16 @@ logger.info("Sarting model training")
 trainer.fit(
     train_loader=train_loader, 
     val_loader=val_loader, 
-    epochs=5
+    epochs=15
 )
 
-trainer.create_submission()
+trainer.save(path="models/VIT_model.pth")
+
+from dataset import TestImageDataset, load_class_names
+from torch.utils.data import DataLoader
+
+test_ds = TestImageDataset("data/test", transform=val_transform)
+test_loader = DataLoader(test_ds, batch_size=32, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
+
+class_names = load_class_names("data/classes.txt")
+trainer.create_submission(test_loader, class_names, "data/submission.csv")
