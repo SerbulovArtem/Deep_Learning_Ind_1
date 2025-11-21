@@ -25,19 +25,18 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-
-
 logger.info('Data Transformation')
 
-MODEL_NAME = "vit_base_patch16_224.augreg_in21k_ft_in1k"  # or: "deit_small_patch16_224.fb_in1k", "eva02_base_patch14_224.mim_m38m_ft_in22k_in1k"
+MODEL_NAME = "convnext_base.fb_in22k_ft_in1k"  # or: "deit_small_patch16_224.fb_in1k", "eva02_base_patch14_224.mim_m38m_ft_in22k_in1k", "convnext_base.fb_in22k_ft_in1k"
 
-# Build a temporary model to resolve transforms
+# MODEL_NAME = "vit_base_patch16_224.augreg_in21k_ft_in1k"
+
+
 _tmp_model = timm.create_model(MODEL_NAME, pretrained=True, num_classes=100)
 data_config = resolve_model_data_config(_tmp_model)
 
 train_transform = create_transform(**data_config, is_training=True)
 val_transform   = create_transform(**data_config, is_training=False)
-
 
 from torchvision import datasets
 dataset_train = datasets.ImageFolder("data/train/", transform=train_transform)
@@ -56,7 +55,7 @@ train_idx, val_idx = train_test_split(
 train_ds = Subset(dataset_train, train_idx)
 val_ds   = Subset(dataset_val,   val_idx)
 
-batch_size = 64
+batch_size = 32
 train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=1, pin_memory=torch.cuda.is_available())
 val_loader   = DataLoader(val_ds,   batch_size=batch_size, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
 
@@ -67,47 +66,35 @@ logger.info('Connecting to MLflow')
 mlflow.autolog(disable=True)
 mlflow.login()
 
-
-class TimmWithLoss(nn.Module):
-    def __init__(self, model, num_classes=100):
-        super().__init__()
-        self.model = model
-        self.criterion = nn.CrossEntropyLoss()
-
-    def forward(self, x, y=None):
-        logits = self.model(x)
-        if y is None:
-            return logits
-        loss = self.criterion(logits, y)
-        return logits, loss
-    
-
-class ViT(TimmWithLoss):
-    def __init__(self, model, num_classes=100):
-        super().__init__(model, num_classes)
-
+from models import ViT, ConvNext
 
 base_model = timm.create_model(MODEL_NAME, pretrained=True, num_classes=100)
-model = ViT(base_model).to(device)
+
+if "vit" in MODEL_NAME:
+    model = ViT(base_model).to(device)
+elif "convnext" in MODEL_NAME:
+    model = ConvNext(base_model).to(device)
 
 logger.info(f"Creating model {model._get_name()}")
 
 from trainer import Trainer
 import torch.optim as optim
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
 optimizer = optim.AdamW(model.parameters(), lr=2e-4, weight_decay=5e-4)
+scheduler = CosineAnnealingLR(optimizer, T_max=15)
 
-trainer = Trainer(model=model, optimizer=optimizer)
+trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler)
 
 logger.info("Sarting model training")
 
 trainer.fit(
     train_loader=train_loader, 
     val_loader=val_loader, 
-    epochs=15
+    epochs=10
 )
 
-trainer.save(path="models/VIT_model.pth")
+trainer.save(path=f"models/{model._get_name()}_model.pth")
 
 from dataset import TestImageDataset, load_class_names
 from torch.utils.data import DataLoader
@@ -116,4 +103,4 @@ test_ds = TestImageDataset("data/test", transform=val_transform)
 test_loader = DataLoader(test_ds, batch_size=32, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
 
 class_names = load_class_names("data/classes.txt")
-trainer.create_submission(test_loader, class_names, "data/submission.csv")
+trainer.create_submission(test_loader, class_names, f"data/submission_{model._get_name()}.csv")

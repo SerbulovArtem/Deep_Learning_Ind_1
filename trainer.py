@@ -2,6 +2,7 @@ import torch
 import torch.optim as optim
 from torch import nn
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import _LRScheduler
 import time
 
 import mlflow
@@ -25,10 +26,11 @@ torch._inductor.config.epilogue_fusion = True # NOTE: for matmul + bias operatio
 torch._inductor.config.coordinate_descent_check_all_directions = True # NOTE: makes the tuning search even harder (longer compile, but faster result)
 
 class Trainer():
-    def __init__(self, model: nn.Module, optimizer: optim.Optimizer = None, compile: bool = False):
+    def __init__(self, model: nn.Module, optimizer: optim.Optimizer = None, scheduler: _LRScheduler = None, compile: bool = False):
         self.model = model
         self.model_name = model._get_name() # NOTE: get the name of a Model for expiriments convinience
         self.optimizer = optimizer or optim.AdamW(model.parameters(), lr=3e-4)
+        self.scheduler = scheduler
         self.device = next(self.model.parameters()).device.type
         self.compile = compile
 
@@ -49,7 +51,7 @@ class Trainer():
     def accuracy(logits, y):
         return (logits.argmax(1) == y).float().mean().item()
     
-    def save(self, path: str, include_optimizer: bool = True):
+    def save(self, path: str, include_optimizer: bool = True, include_scheduler: bool = True):
         state = {
             "model_name": self.model_name,
             "model_state": self.model.state_dict(),
@@ -57,6 +59,8 @@ class Trainer():
         }
         if include_optimizer:
             state["optimizer_state"] = self.optimizer.state_dict()
+        if include_scheduler and self.scheduler is not None:
+            state["scheduler_state"] = self.scheduler.state_dict()
         tmp_path = path + ".tmp"
         torch.save(state, tmp_path)
         os.replace(tmp_path, path)
@@ -150,3 +154,8 @@ class Trainer():
                 }, step=epoch)
 
                 logger.info(f"Epoch {epoch:02d} | train_acc={train_acc:.3f} val_acc={val_acc:.3f} | time/sec={dt:.3f}")
+
+                if self.scheduler is not None:
+                    self.scheduler.step()
+                current_lr = self.optimizer.param_groups[0]["lr"]
+                mlflow.log_metric("lr", current_lr, step=epoch)

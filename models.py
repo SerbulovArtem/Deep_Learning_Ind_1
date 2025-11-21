@@ -232,3 +232,8 @@ class TimmWithLoss(nn.Module):
 class ViT(TimmWithLoss):
     def __init__(self, model, num_classes=100):
         super().__init__(model, num_classes)
+
+
+class ConvNext(TimmWithLoss):
+    def __init__(self, model, num_classes=100):
+        super().__init__(model, num_classes)
