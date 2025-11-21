@@ -54,7 +54,7 @@ In progress...
 
 I would reccomend to read briefly their [website](https://dcai.csail.mit.edu/) with Lectures and Labs hosted by [MIT](https://www.mit.edu/)
 
-Files relate to this part are [label_issues.py](label_issues.py) and [view_label_issues.py](view_label_issues.py)
+Files related to this part are [label_issues.py](label_issues.py) and [view_label_issues.py](view_label_issues.py)
 
 ## Confusion Matrix
 
