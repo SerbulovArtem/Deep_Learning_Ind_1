@@ -70,12 +70,12 @@ def build_model(model_name: str, device: str):
 def objective(trial: optuna.Trial, model_name: str, train_ds, val_ds, device: str, trial_epochs: int):
     lr = trial.suggest_float("lr", 1e-5, 1e-4, log=True)
     weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-3, log=True)
-    batch_size = trial.suggest_categorical("batch_size", [16, 32, 64])
+    batch_size = trial.suggest_categorical("batch_size", [128])
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
-                              num_workers=1, pin_memory=torch.cuda.is_available())
+                              num_workers=4, pin_memory=torch.cuda.is_available())
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False,
-                            num_workers=1, pin_memory=torch.cuda.is_available())
+                            num_workers=4, pin_memory=torch.cuda.is_available())
 
     model = build_model(model_name, device)
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -123,7 +123,7 @@ def main():
         study = optuna.create_study(direction="maximize")
         study.optimize(
             lambda t: objective(t, model_name, train_ds, val_ds, device, trial_epochs=15),
-            n_trials=20,
+            n_trials=2,
         )
 
         best = {

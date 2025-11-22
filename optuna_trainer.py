@@ -25,10 +25,10 @@ torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 
 # NOTE: bunch of flags for torch.compile() for faster training
-torch._inductor.config.conv_1x1_as_mm = True # NOTE: treats 1x1 convolutions as faster matrix multiplications
-torch._inductor.config.coordinate_descent_tuning = True # NOTE: enables advanced tuning to find the best kernel
-torch._inductor.config.epilogue_fusion = True # NOTE: for matmul + bias operations
-torch._inductor.config.coordinate_descent_check_all_directions = True # NOTE: makes the tuning search even harder (longer compile, but faster result)
+# torch._inductor.config.conv_1x1_as_mm = True # NOTE: treats 1x1 convolutions as faster matrix multiplications
+# torch._inductor.config.coordinate_descent_tuning = True # NOTE: enables advanced tuning to find the best kernel
+# torch._inductor.config.epilogue_fusion = True # NOTE: for matmul + bias operations
+# torch._inductor.config.coordinate_descent_check_all_directions = True # NOTE: makes the tuning search even harder (longer compile, but faster result)
 
 class Trainer():
     def __init__(self, model: nn.Module, optimizer: optim.Optimizer = None, scheduler: _LRScheduler = None, compile: bool = False):
