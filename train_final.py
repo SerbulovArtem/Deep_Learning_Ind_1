@@ -80,9 +80,9 @@ def main():
     weight_decay = params["weight_decay"]
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
-                              num_workers=1, pin_memory=torch.cuda.is_available())
+                              num_workers=4, pin_memory=torch.cuda.is_available())
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False,
-                             num_workers=1, pin_memory=torch.cuda.is_available())
+                             num_workers=4, pin_memory=torch.cuda.is_available())
 
     model = build_model(model_name, device)
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -105,12 +105,14 @@ def main():
             }
         )
 
-        trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler, compile=True)
+        trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler, compile=False)
         # here we can treat test_loader as "val" loader just for logging
         trainer.fit(train_loader=train_loader, val_loader=test_loader, epochs=10)
 
         # save final model and log to MLflow
-        save_path = f"models/{model._get_name()}_final.pth"
+        out_dir = Path("models")
+        out_dir.mkdir(exist_ok=True)
+        save_path = f"{out_dir}/{model._get_name()}_final.pth"
         trainer.save(save_path, include_optimizer=False, include_scheduler=False)
         mlflow.log_artifact(save_path, artifact_path="checkpoints")
 

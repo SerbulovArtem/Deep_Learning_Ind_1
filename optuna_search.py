@@ -68,8 +68,7 @@ def build_model(model_name: str, device: str):
 
 
 def objective(trial: optuna.Trial, model_name: str, train_ds, val_ds, device: str, trial_epochs: int):
-    lr = trial.suggest_float("lr", 1e-5, 1e-4, log=True)
-    weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-3, log=True)
+    lr = trial.suggest_float("lr", 1e-4, 1e-3, log=True)
     batch_size = trial.suggest_categorical("batch_size", [512])
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
@@ -78,7 +77,7 @@ def objective(trial: optuna.Trial, model_name: str, train_ds, val_ds, device: st
                             num_workers=4, pin_memory=torch.cuda.is_available())
 
     model = build_model(model_name, device)
-    optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-6)
     scheduler = CosineAnnealingLR(optimizer, T_max=trial_epochs)
     
     with mlflow.start_run(nested=True, run_name=f"trial_{trial.number}"):
@@ -87,7 +86,6 @@ def objective(trial: optuna.Trial, model_name: str, train_ds, val_ds, device: st
                 "trial_number": trial.number,
                 "model_name": model_name,
                 "lr": lr,
-                "weight_decay": weight_decay,
                 "batch_size": batch_size,
             }
         )
@@ -120,7 +118,8 @@ def main():
     )
 
     with mlflow.start_run(experiment_id=exp.experiment_id) as parent_run:
-        study = optuna.create_study(direction="maximize")
+        sampler = optuna.samplers.TPESampler()
+        study = optuna.create_study(direction="maximize", sampler=sampler)
         study.optimize(
             lambda t: objective(t, model_name, train_ds, val_ds, device, trial_epochs=10),
             n_trials=20,
