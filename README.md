@@ -74,7 +74,14 @@ I would reccomend to read briefly their [website](https://dcai.csail.mit.edu/) w
 
 Files related to this part are [label_issues.py](label_issues.py) and [view_label_issues.py](view_label_issues.py)
 
-Usage: python view_label_issues.py --limit 12 --save-dir data/issue_figs --no-show
+Usage:  
+```python
+python label_issues.py
+```
+
+```python
+python view_label_issues.py --limit 12 --save-dir data/issue_figs --no-show
+```
 
 ## Confusion Matrix
 
@@ -84,6 +91,10 @@ Essentially, just added confusuin matrix and precision, recall and f1 metrics pe
 
 If you are going to use RunPod containers, run these commands first:    
 
-1. sudo apt-get remove --purge python3-blinker
+```bash
+sudo apt-get remove --purge python3-blinker
+```
 
-2. sudo apt-get remove --purge python3-cryptography
+```bash
+sudo apt-get remove --purge python3-cryptography
+```
