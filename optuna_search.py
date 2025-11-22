@@ -89,10 +89,9 @@ def objective(trial: optuna.Trial, model_name: str, train_ds, val_ds, device: st
                 "lr": lr,
                 "weight_decay": weight_decay,
                 "batch_size": batch_size,
-                "T_max": t_max,
             }
         )
-        trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler)
+        trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler, compile=True)
         
         val_acc = trainer.fit(train_loader, val_loader, epochs=trial_epochs, use_mlflow=True)
 
@@ -123,8 +122,8 @@ def main():
     with mlflow.start_run(experiment_id=exp.experiment_id) as parent_run:
         study = optuna.create_study(direction="maximize")
         study.optimize(
-            lambda t: objective(t, model_name, train_ds, val_ds, device, trial_epochs=5),
-            n_trials=2,
+            lambda t: objective(t, model_name, train_ds, val_ds, device, trial_epochs=15),
+            n_trials=20,
         )
 
         best = {

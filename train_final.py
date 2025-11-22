@@ -78,7 +78,6 @@ def main():
     batch_size = params["batch_size"]
     lr = params["lr"]
     weight_decay = params["weight_decay"]
-    t_max = params["T_max"]
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
                               num_workers=1, pin_memory=torch.cuda.is_available())
@@ -87,7 +86,7 @@ def main():
 
     model = build_model(model_name, device)
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = CosineAnnealingLR(optimizer, T_max=t_max)
+    scheduler = CosineAnnealingLR(optimizer, T_max=15)
 
     mlflow.autolog(disable=True)
     mlflow.login()
@@ -103,13 +102,12 @@ def main():
                 "lr": lr,
                 "weight_decay": weight_decay,
                 "batch_size": batch_size,
-                "T_max": t_max,
             }
         )
 
-        trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler)
+        trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler, compile=True)
         # here we can treat test_loader as "val" loader just for logging
-        trainer.fit(train_loader=train_loader, val_loader=test_loader, epochs=10)
+        trainer.fit(train_loader=train_loader, val_loader=test_loader, epochs=15)
 
         # save final model and log to MLflow
         save_path = f"models/{model._get_name()}_final.pth"
