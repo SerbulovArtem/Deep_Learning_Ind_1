@@ -70,7 +70,7 @@ def build_model(model_name: str, device: str):
 def objective(trial: optuna.Trial, model_name: str, train_ds, val_ds, device: str, trial_epochs: int):
     lr = trial.suggest_float("lr", 1e-5, 1e-4, log=True)
     weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-3, log=True)
-    batch_size = trial.suggest_categorical("batch_size", [128])
+    batch_size = trial.suggest_categorical("batch_size", [512])
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
                               num_workers=4, pin_memory=torch.cuda.is_available())
@@ -122,8 +122,8 @@ def main():
     with mlflow.start_run(experiment_id=exp.experiment_id) as parent_run:
         study = optuna.create_study(direction="maximize")
         study.optimize(
-            lambda t: objective(t, model_name, train_ds, val_ds, device, trial_epochs=15),
-            n_trials=2,
+            lambda t: objective(t, model_name, train_ds, val_ds, device, trial_epochs=10),
+            n_trials=20,
         )
 
         best = {

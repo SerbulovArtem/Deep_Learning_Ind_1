@@ -82,7 +82,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 optimizer = optim.AdamW(model.parameters(), lr=2e-4, weight_decay=5e-4)
-scheduler = CosineAnnealingLR(optimizer, T_max=15)
+scheduler = CosineAnnealingLR(optimizer, T_max=10)
 
 trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler)
 

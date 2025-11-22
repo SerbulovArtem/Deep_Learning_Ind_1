@@ -86,7 +86,7 @@ def main():
 
     model = build_model(model_name, device)
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = CosineAnnealingLR(optimizer, T_max=15)
+    scheduler = CosineAnnealingLR(optimizer, T_max=10)
 
     mlflow.autolog(disable=True)
     mlflow.login()
@@ -107,7 +107,7 @@ def main():
 
         trainer = Trainer(model=model, optimizer=optimizer, scheduler=scheduler, compile=True)
         # here we can treat test_loader as "val" loader just for logging
-        trainer.fit(train_loader=train_loader, val_loader=test_loader, epochs=15)
+        trainer.fit(train_loader=train_loader, val_loader=test_loader, epochs=10)
 
         # save final model and log to MLflow
         save_path = f"models/{model._get_name()}_final.pth"
