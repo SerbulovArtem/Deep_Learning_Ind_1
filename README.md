@@ -59,3 +59,11 @@ Files related to this part are [label_issues.py](label_issues.py) and [view_labe
 ## Confusion Matrix
 
 Essentially, just added confusuin matrix and precision, recall and f1 metrics per class in this file [create_confusion_matrix.py](create_confusion_matrix.py)
+
+## Env Configuration
+
+If you are going to use RunPod containers, run these commands first:    
+
+1. sudo apt-get remove --purge python3-blinker
+
+2. sudo apt-get remove --purge python3-cryptography
