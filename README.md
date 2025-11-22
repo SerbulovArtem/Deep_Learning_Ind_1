@@ -44,7 +44,25 @@ In this file [fine_tune_pretrained.py](fine_tune_pretrained.py) can be found the
 
 # Heavy Weapon
 
-In progress...
+Here at [Runpod](https://www.runpod.io/) you can rent some GPUs for acceptable price. 
+
+So, at first, I tested my environment on the **RTX A4500 20 GB**.  
+
+Furthermore, I switched to more powerfull **A100 PCLe 80 GB** for training with hyper-parameter tuning. On this GPU I achieved: ...  
+
+Below is GPU configuration of **A100 PCLe 80 GB**
+
+![alt text](images/GPU_config.png)
+
+Below is Mixumum Load - batch size of **512**. At the same time, my **NVIDIA GeForce RTX 3060 Laptop GPU** could only afford batch size of **32-64**.
+
+![alt text](images/Maximum_load.png)
+
+Below is Training Speed ~ **23 sec per epoch**. At the same time, on mine GPU ~ **100 sec per epoch**.
+
+![alt text](images/Training_speed.png)
+
+Files related to this part are [data_splits.py](data_splits.py), [create_submission.py](create_submission.py), [optuna_search.py](optuna_search.py), [optuna_trainer.py](optuna_trainer.py) and [train_final.py](train_final.py)
 
 # Additional Work
 
