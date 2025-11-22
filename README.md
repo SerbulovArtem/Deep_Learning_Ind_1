@@ -74,6 +74,8 @@ I would reccomend to read briefly their [website](https://dcai.csail.mit.edu/) w
 
 Files related to this part are [label_issues.py](label_issues.py) and [view_label_issues.py](view_label_issues.py)
 
+Usage: python view_label_issues.py --limit 12 --save-dir data/issue_figs --no-show
+
 ## Confusion Matrix
 
 Essentially, just added confusuin matrix and precision, recall and f1 metrics per class in this file [create_confusion_matrix.py](create_confusion_matrix.py)

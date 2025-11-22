@@ -15,15 +15,15 @@ logging.basicConfig(
     format='%(asctime)s - %(module)s - %(levelname)s - %(message)s',
 )
 
-logger.info("Loading saved model from models/VIT_model.pth for Cleanlab analysis")
+logger.info("Loading saved model from models/ConvNext_final.pth for Cleanlab analysis")
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
-MODEL_NAME = "vit_base_patch16_224.augreg_in21k_ft_in1k"
+MODEL_NAME = "convnext_base.fb_in22k_ft_in1k"
 
 loaded_base_model = timm.create_model(MODEL_NAME, pretrained=False, num_classes=100)
 data_config = resolve_model_data_config(loaded_base_model)
 loaded_model = ViT(loaded_base_model).to(device)
-state_dict = torch.load("models/VIT_model.pth", map_location=device)
+state_dict = torch.load("models/ConvNext_final.pth", map_location=device)
 
 # Handle trainer save format
 if isinstance(state_dict, dict) and "model_state" in state_dict:

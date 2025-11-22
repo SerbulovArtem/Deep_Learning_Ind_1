@@ -10,7 +10,7 @@ from timm.data import resolve_model_data_config, create_transform
 from models import ViT, ConvNext
 
 MODEL_NAME = "convnext_base.fb_in22k_ft_in1k"
-MODEL_FILE = "models/ConvNext_model.pth"
+MODEL_FILE = "models/ConvNext_final.pth"
 DATA_DIR = "data/train"
 BATCH = 32
 OUT_DIR = "data/analysis"

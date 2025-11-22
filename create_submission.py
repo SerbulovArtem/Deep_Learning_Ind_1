@@ -48,7 +48,7 @@ def main():
     val_transform = create_transform(**data_config, is_training=False)
 
     test_ds = TestImageDataset("data/test", transform=val_transform)
-    test_loader = DataLoader(test_ds, batch_size=512, shuffle=False, num_workers=4, pin_memory=torch.cuda.is_available())
+    test_loader = DataLoader(test_ds, batch_size=32, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
 
     class_names = load_class_names("data/classes.txt")
 

@@ -80,9 +80,9 @@ def main():
     weight_decay = params["weight_decay"]
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
-                              num_workers=4, pin_memory=torch.cuda.is_available())
+                              num_workers=1, pin_memory=torch.cuda.is_available())
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False,
-                             num_workers=4, pin_memory=torch.cuda.is_available())
+                             num_workers=1, pin_memory=torch.cuda.is_available())
 
     model = build_model(model_name, device)
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
